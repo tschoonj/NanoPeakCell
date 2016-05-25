@@ -103,7 +103,9 @@ class ImageFactory(object):
         path = QtGui.QFileDialog.getExistingDirectory(
                        self.parent,
                        "Select a folder",
-                       '/Users/nico/PycharmProjects/npg_qt')
+                       os.path.expanduser('~'),
+                       QtGui.QFileDialog.DontUseNativeDialog | QtGui.QFileDialog.ShowDirsOnly)
+
         if path:
             self.tree.clear()
             os.chdir(path)

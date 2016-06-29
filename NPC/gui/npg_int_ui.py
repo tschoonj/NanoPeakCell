@@ -2,16 +2,11 @@
 
 # Form implementation generated from reading ui file 'npg_int.ui'
 #
-# Created: Tue May 26 17:51:53 2015
-#      by: PyQt4 UI code generator 4.11.3
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
-#try:
-# from PyQt5 import QtCore, QtGui
-#except:
 from PyQt4 import QtCore, QtGui
-
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -31,14 +26,16 @@ class Ui_Intensities(object):
     def setupUi(self, Intensities):
         Intensities.setObjectName(_fromUtf8("Intensities"))
         Intensities.resize(880, 330)
+        self.gridLayout = QtGui.QGridLayout(Intensities)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.textEdit = QtGui.QTextEdit(Intensities)
         self.textEdit.setEnabled(False)
-        self.textEdit.setGeometry(QtCore.QRect(20, 20, 840, 290))
         font = QtGui.QFont()
         font.setFamily(_fromUtf8("Courier New"))
-        font.setPointSize(11)
+        font.setPointSize(12)
         self.textEdit.setFont(font)
         self.textEdit.setObjectName(_fromUtf8("textEdit"))
+        self.gridLayout.addWidget(self.textEdit, 0, 0, 1, 1)
 
         self.retranslateUi(Intensities)
         QtCore.QMetaObject.connectSlotsByName(Intensities)

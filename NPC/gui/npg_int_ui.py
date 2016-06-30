@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'npg_int.ui'
+# Form implementation generated from reading ui file 'NPC/gui/npg_int.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
@@ -25,7 +25,7 @@ except AttributeError:
 class Ui_Intensities(object):
     def setupUi(self, Intensities):
         Intensities.setObjectName(_fromUtf8("Intensities"))
-        Intensities.resize(880, 330)
+        Intensities.resize(900, 350)
         self.gridLayout = QtGui.QGridLayout(Intensities)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.textEdit = QtGui.QTextEdit(Intensities)

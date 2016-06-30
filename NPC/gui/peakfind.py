@@ -123,7 +123,7 @@ def find_local_max(img, d_rad, threshold=1e-15, inplace=False):
                                         mode='constant')   # do the dilation
 
     # find the locations that are the local maximum
-    # TODO clean this up
+    #
     
     maxima = np.vstack(np.where(np.exp(img - dilated_img) > (1 - 1e-15))).T
     count=0

@@ -5,7 +5,6 @@ import os.path
 import glob
 import sys
 
-
 def parseBoolString(s):
     return s.strip().lower() in ('true', 't', 'yes', '1')
 
@@ -28,14 +27,15 @@ Experimental_Setup = {
 Hit_Finding_Parameters = {'threshold': (int, 0),
                           'npixels': (int, 20),
                           'bragg_search': (parseBoolString, False),
-                          'bragg_threshold': (int, 10)}
+                          'bragg_threshold': (int, 10),
+                          'roi': (str, None)}
 
 General = {'experiment': (str, 'SSX'),
            'cpus': (int, 4),
            'parallelism': (str, 'multiprocessing'),
            'background_subtraction': (str, None),
-           'detector_correction': (parseBoolString, False),
-           'randomizer': (int, 0)}
+           'randomizer': (int, 0),
+           'live': (parseBoolString, False)}
 
 IO_SSX = {
     'output_formats': (str, 'hdf5'),
@@ -132,8 +132,7 @@ class NpcGenericParser(ConfigParser.RawConfigParser):
             try:
                 built_in, default = dic[option]
                 try:
-                   test = self.get(section, option)
-                   dic[option] = built_in(self.get(section, option))
+                    dic[option] = built_in(self.get(section, option))
                 except ValueError:
                     print("Exception on {0}! - Default value instead: {1}".format(option, default))
                     dic[option] = default
@@ -165,25 +164,25 @@ def get_result_folder_number(options):
     else: num = str(max(num_folders)+1)
     return num
 
-
 if __name__ == '__main__':
 
-   if len(sys.argv) != 2:
-    print 'Usage: npc config-file'
-
-   else:
-    config_file = sys.argv[1]
-    options = {}
-
-    options['config_file'] = config_file
-    npc_parser = NpcGenericParser(config_file)
-
-    for key in npc_parser.mapping:
-        options.update(npc_parser.mapping[key])
-
-    options['num'] = get_result_folder_number(options)
-    if options['parallelism'] == 'MPI':
-        from NPC.PreProcessing import DataProcessing_MPI as DataProc
+    if len(sys.argv) != 2:
+        print 'Usage: npc config-file'
     else:
-        from NPC.PreProcessing import DataProcessing_multiprocessing as DataProc
-    DataProc(options)
+        config_file = sys.argv[1]
+        options = {}
+
+        options['config_file'] = config_file
+        npc_parser = NpcGenericParser(config_file)
+
+        for key in npc_parser.mapping:
+            options.update(npc_parser.mapping[key])
+        options['num'] = get_result_folder_number(options)
+
+
+        if options['parallelism'] == 'MPI':
+            from NPC.PreProcessing import DataProcessing_MPI as DataProc
+        else:
+            from NPC.PreProcessing import DataProcessing_multiprocessing as DataProc
+        DataProc(options)
+

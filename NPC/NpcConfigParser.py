@@ -5,8 +5,7 @@ import sys
 
 
 def parseBoolString(s):
-    print 'Called'
-    return s.strip().lower in ('true', 't', 'yes', '1')
+    return s.strip().lower() in ('true', 't', 'yes', '1')
 
 CrystFEL = {'beam_divergence': (float, 1),
             'pixel_size': (float, 100),
@@ -28,7 +27,7 @@ Hit_Finding_Parameters = {'threshold': (int, 0),
                           'npixels': (int, 20),
                           'bragg_search': (parseBoolString, False),
                           'bragg_threshold': (int, 10),
-                          'ROI': (str, 'none')}
+                          'roi': (str, 'none')}
 
 General = {'experiment': (str, 'SSX'),
            'cpus': (int, 4),
@@ -131,7 +130,6 @@ class NpcGenericParser(ConfigParser.RawConfigParser):
         for option in options:
             try:
                 built_in, default = dic[option]
-                print built_in, default
                 try:
                     dic[option] = built_in(self.get(section, option))
                 except ValueError:

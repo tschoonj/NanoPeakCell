@@ -26,7 +26,7 @@ class HitFinder(object):
         self.extend = 15
         self.type = np.float32
 
-        if self.options['ROI'] == 'None':
+        if self.options['roi'] == 'None':
             dim1 = self.detector.shape[0]
             dim2 = self.detector.shape[1]
             self.data = np.empty((dim1, dim2))
@@ -40,7 +40,6 @@ class HitFinder(object):
             dim1 = self.xmax - self.xmin
             dim2 = self.ymax - self.ymin
             self.data = np.empty((dim1, dim2))
-            #print self.data.shape
 
 
 
@@ -61,9 +60,9 @@ class HitFinder(object):
             self.hit = 1
             if self.options['bragg_search']:
                 self.peaks = self.find_peaks()
-            #self.save_hit()
+
         else: self.hit = 0
-        return self.hit, np.max(self.data), np.min(self.data), np.median(self.data), len(self.peaks)#, self.data
+        return self.hit, np.max(self.data), np.min(self.data), np.median(self.data), len(self.peaks)
 
     def apply_mask(self):
         self.data[:] = self.data * np.logical_not(self.detector.mask[self.xmin:self.xmax,self.ymin:self.ymax]) - self.dark[self.xmin:self.xmax,self.ymin:self.ymax]

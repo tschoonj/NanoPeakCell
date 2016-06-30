@@ -238,6 +238,7 @@ class DataProcessing_multiprocessing(DataProcessing):
 
     def start_FS(self):
         self.FS = self.FileSentinel(self.tasks, self.N_queue, self.options, self.detector, self.ai)
+        self.FS.daemon = True
         self.FS.start()
 
     def start_mp(self):
@@ -247,6 +248,7 @@ class DataProcessing_multiprocessing(DataProcessing):
             self.MProcess(self.tasks, self.results, self.options, self.detector,
                               self.ai) for i in xrange(self.options['cpus'])]
         for w in self.consumers:
+            w.daemon = True
             w.start()
 
     def find_hits(self):
@@ -255,11 +257,24 @@ class DataProcessing_multiprocessing(DataProcessing):
         self.out = 0
         self.total = 0
 
-
+        threads = self.consumers
+        threads += [self.FS]
         if self.live:
+
             while True:
-              self.get_results()
-              time.sleep(0.1)
+                try:
+                    # Join all threads using a timeout so it doesn't block
+                    # Filter out threads which have been joined or are None
+                    #print threads
+                    self.get_results()
+                    time.sleep(0.1)
+                except KeyboardInterrupt:
+                    print "\n\nCtrl-c received! Sending kill to threads..."
+                    for t in threads:
+                        t.kill_received = True
+                    sys.exit(1)
+
+
         else:
           while self.out != self.total or self.out == 0:
             self.get_results()
@@ -269,6 +284,7 @@ class DataProcessing_multiprocessing(DataProcessing):
     def get_results(self):
 
             while True:
+
                 try:
                     self.total = self.N_queue.get(block=True, timeout=0.01)
                 except:
@@ -299,10 +315,8 @@ class DataProcessing_multiprocessing(DataProcessing):
         print("It took %4.2f seconds to process %i images (i.e %4.2f images per second)")% (
             (self.t2 - self.t1), self.total, self.total / (self.t2 - self.t1))
 
-        #if self.hit > 0:
-        #    self.avg = self.avg / self.hit
-        #    self.cleanmax = self.max_proj - self.avg
-        #    self.save_maxproj(self.cleanmax,self.max_proj,self.avg)
+
+
 
     def save_maxproj(self,cleanmax,max_proj_final,avg_final):
 
@@ -380,7 +394,7 @@ if __name__ == '__main__':
                 'wavelength': 0.832,
                 'output_directory': '.',
                 'num': '1',
-                'output_formats': 'hdf5',
+                'output_formats': 'pickles',
                 'data': '/Users/coquelleni/PycharmProjects/tmp',
                 'filename_root': 'b3rod',
                 'file_extension': '.cbf',
@@ -393,8 +407,13 @@ if __name__ == '__main__':
                 'mask': 'None',
                 'dark': 'none',
                 'live': False,
-                #'ROI': 'None'
-                'ROI':  '1257 1231 2527 2463'
+                'roi': 'None',
+                #'roi':  '1257 1231 2527 2463',
+                'distance': 123,
+                'wavelength': 1.23,
+                'beam_y': 800,
+                'beam_x': 1200
+
                }
     Test = DataProcessing_multiprocessing(options_SSX)
     #Test = DataProcessing_multiprocessing(options_SACLA)

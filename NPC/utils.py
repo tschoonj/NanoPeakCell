@@ -41,9 +41,9 @@ def check_intall(options):
 def create_results_folders(options):
     results_folder = options['output_directory']
     num = options['num']
-
+    root = options['filename_root']
     for output_format in options['output_formats'].split():
-        dir = "%s_%s" %(output_format.upper(), num.zfill(3))
+        dir = "%s_%s_%s" %(output_format.upper(), root, num.zfill(3))
         os.mkdir(os.path.join(results_folder,dir))
         os.mkdir(os.path.join(results_folder,dir,'MAX'))
 
@@ -133,6 +133,7 @@ def get_filenames(options, fns=[]):
         if tot == 0 and not fns:
             if live:
                 print('\n= Job progression = Hit rate =    Max   =   Min   = Median = #Peaks ')
+                f = sorted(f)
                 return f
             else:
                 print('Sorry, no file to be processed... Yet ?')
@@ -140,7 +141,7 @@ def get_filenames(options, fns=[]):
         if not fns:
             print('%i files have been found and will be processed')% tot
             print('\n= Job progression = Hit rate =    Max   =   Min   = Median = #Peaks ')
-
+        f = sorted(f)
         return f
 
 if __name__ == '__main__':

@@ -369,15 +369,15 @@ class NPG(QtGui.QMainWindow):
     # Mouse interaction with the viewbox
     def getIntensities(self, ev):
         if ev.button() == QtCore.Qt.MidButton and self.view.sceneBoundingRect().contains(ev.pos()):
-            x = self.cursorx#int(mousePoint.x())
-            y = self.cursory#int(mousePoint.y())
+            x = self.cursorx
+            y = self.cursory
             try:
                 xmax , ymax = self.data.shape
                 if self.cursorx > 0 and self.cursory > 0 and self.cursorx < xmax and self.cursory < ymax:
-                    data = self.data[x-10:x+10,y-10:y+10].T
+                    data = self.data[x-10:x+9,y-10:y+9].T
                     s= ''
-                    for i in range(0,20):
-                        s = s + '\n' + ''.join(['%6i' % member for member in data[i,:]])
+                    for i in range(0,19):
+                        s = s + '\n' + ''.join(['%6i' % member for member in data[-(i+1),:]])
                     self.popup_int.ui.textEdit.setText("%s"%s)
                     if not self.popup_int.isVisible(): self.popup_int.show()
                     self.popup_int.setWindowState(self.popup_int.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
@@ -410,7 +410,7 @@ class NPG(QtGui.QMainWindow):
             
         if os.path.exists(str(self.item.text(0))):
             fn = self.item.text(0)
-            print fn
+            #print fn
             header, self.data = self.imgfact.openframe(str(fn))
 
         else:
@@ -421,7 +421,7 @@ class NPG(QtGui.QMainWindow):
             if not os.path.isfile(fn):
                parent2 = parent.parent()
                fn = str(parent2.text(0))#path = str(parent.text(0))
-            print fn, path, index
+            #print fn, path, index
             header, self.data =self.imgfact.openframe(str(fn),path=path,index=int(index))
 
 

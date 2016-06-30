@@ -25,7 +25,6 @@ def load_pickle(file_name, faster_but_using_more_memory=True):
   return cPickle.load(open(file_name, "rb"))
 
 
-
 class ConstructingTree(QtCore.QThread):
 
     def __init__(self, tree):
@@ -58,8 +57,7 @@ class ImageFactory(object):
                        )
         self.filename = None
         self.h5_dic = {}
-
-
+        self.filenames_dic = {}
 
     def openframe(self, fn, path='/data', index=None):
         self.filename = fn
@@ -76,34 +74,22 @@ class ImageFactory(object):
             self.h5_fn = fn
             if self.h5 is not None: self.h5.close()
             self.h5 = h5py.File(fn)
-        #print fn, path, index
-        #try:
-        print self.h5_dic[fn]
         for dataset in  self.h5_dic[fn]:
                 if path == dataset[0]:
                     if index is None:
                       data = self.h5[path][:]
-                      return None,data
+                      return None,data.T
                     else:
                         data = self.h5[path][index,::]
-                        return None, data
-        #except:
-        #    return None, None
+                        return None, data.T
 
     def openimg(self,fn):
         img = fabio.open(fn)
-        return img.header, img.data
+        return img.header, img.data.T
 
     def openpickle(self,fn):
-        try:
-            #from libtbx import easy_pickle
-            from scipy import ndimage
 
-        except ImportError:
-            print "Sorry, "
-            return
         img = load_pickle(self.filename)
-
         # This code snippet helps to remove the border of each tile of the CSPAD (lots of overload)
         #
         #data = img['DATA'].as_numpy_array()
@@ -111,16 +97,13 @@ class ImageFactory(object):
         #s = ndimage.generate_binary_structure(2, 1)
         #self.dset = data*np.logical_not(ndimage.binary_dilation(mask, structure =s ))
         data = img['DATA'].as_numpy_array()
-        return None, data
-
-
+        return None, data.T
 
     def getImages(self):
         path = QtGui.QFileDialog.getExistingDirectory(
                        self.parent,
                        "Select a folder",
                        '/Users/nico/PycharmProjects/npg_qt')
-
         if path:
             self.tree.clear()
             os.chdir(path)
@@ -130,10 +113,13 @@ class ImageFactory(object):
             files = []
             for f in self.types:
                 files.extend(glob.glob('*.%s' % f))
-
+            # TODO: Do not perform visitor_func for every data file !!
+            # TODO: extract metadata from master
+            # TODO: Remove paths from tree name - in progress
             masters = [f for f in files if 'master.h5' in f]
             for master in sorted(masters):
                 item = QtGui.QTreeWidgetItem(self.tree)
+                #s =
                 item.setText(0, master)
                 files.remove(master)
                 root = master.strip('master.h5')
@@ -141,7 +127,7 @@ class ImageFactory(object):
 
                 for data in sorted(datas):
                     self.filename = data
-                    self.h5_dic[self.filename] =[]
+                    self.h5_dic[self.filename] = []
                     with h5py.File(data, 'r') as f:
 
                         f.visititems(self.visitor_func)
@@ -171,7 +157,6 @@ class ImageFactory(object):
 
     def append_file(self, fn):
         filename, file_extension = os.path.splitext(fn)
-
         if file_extension.strip('.') in self.types:
             self.add_tree(fn)
 
@@ -189,9 +174,6 @@ class ImageFactory(object):
 
 
     def construct_tree(self, f, parent):
-        #try:
-
-            #if len(self.h5_dic[f]) == 1:
 
             item = QtGui.QTreeWidgetItem(parent)
             item.setText(0,f)
@@ -202,7 +184,7 @@ class ImageFactory(object):
                     item.setText(1,"1")
                 else:
                     item.setText(1, str(shape[0]))
-                    for i in range(min(100,shape[0])):
+                    for i in range(shape[0]):
                         item1 = QtGui.QTreeWidgetItem(item)
                         item1.setText(0, '%s %8i'%(path,i))
             else:
@@ -220,14 +202,6 @@ class ImageFactory(object):
                             item2.setText(0, '%s %8i'%(path,i))
                     count += shape[0]
                     item.setText(1, str(count))
-
-
-
-
-
-
-       #except KeyError:
-       #     print("Sorry - No suitable dataset found in %s" %f)
 
     def visitor_func(self, name, node):
 
